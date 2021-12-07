@@ -6,7 +6,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/godes"
+	"github.com/jtdoepke/godes"
 )
 
 const NEW_CUSTOMERS = 5          // Total number of customers

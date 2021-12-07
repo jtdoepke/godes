@@ -45,7 +45,7 @@ While finishing a customer run  the application creates data arrays for each mea
 import (
 	"fmt"
 
-	"github.com/godes"
+	"github.com/jtdoepke/godes"
 )
 
 //Input Parameters
