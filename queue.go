@@ -7,8 +7,6 @@
 // for modeling a wide variety of systems at varying levels of details.
 //
 
-
-
 package godes
 
 import (
@@ -17,12 +15,12 @@ import (
 
 // Queue represents a FIFO or LIFO queue
 type Queue struct {
-	id      string
-	fifo    bool
-	sumTime float64
-	count   int64
-	qList   *list.List
-	qTime   *list.List
+	id        string
+	fifo      bool
+	sumTime   float64
+	count     int64
+	qList     *list.List
+	qTime     *list.List
 	startTime float64
 }
 
@@ -48,15 +46,15 @@ func (q *Queue) Len() int {
 
 //GetAverageTime is average elapsed time for an object in the queue
 func (q *Queue) GetAverageNumber() float64 {
-	return q.sumTime / (stime-q.startTime)
+	return q.sumTime / (stime - q.startTime)
 }
 
 //Place adds an object to the queue
 func (q *Queue) Place(entity interface{}) {
 	q.qList.PushFront(entity)
 	q.qTime.PushFront(stime)
-	if(q.startTime==0){
-		q.startTime=stime
+	if q.startTime == 0 {
+		q.startTime = stime
 	}
 }
 

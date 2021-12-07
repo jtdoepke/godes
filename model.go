@@ -15,17 +15,21 @@ package godes
 import (
 	"container/list"
 	"fmt"
-	//"sync"
 	"time"
 )
 
 const simulationSecondScale = 100
-const rUNNER_STATE_READY = 0
-const rUNNER_STATE_ACTIVE = 1
-const rUNNER_STATE_WAITING_COND = 2
-const rUNNER_STATE_SCHEDULED = 3
-const rUNNER_STATE_INTERRUPTED = 4
-const rUNNER_STATE_TERMINATED = 5
+
+type runnerState int
+
+const (
+	runnerStateReady       runnerState = 0
+	runnerStateActive      runnerState = iota
+	runnerStateWaitingCond runnerState = iota
+	runnerStateScheduled   runnerState = iota
+	runnerStateInterrupted runnerState = iota
+	runnerStateTerminated  runnerState = iota
+)
 
 var modl *model
 var stime float64 = 0
@@ -144,14 +148,11 @@ func createModel(verbose bool) {
 }
 
 type model struct {
-	//mu                  sync.RWMutex
 	activeRunner        RunnerInterface
 	movingList          *list.List
 	scheduledList       *list.List
-	waitingList         *list.List
 	waitingConditionMap map[int]RunnerInterface
 	interruptedMap      map[int]RunnerInterface
-	terminatedList      *list.List
 	currentId           int
 	controlChannel      chan int
 	simulationActive    bool
@@ -165,7 +166,7 @@ func newModel(verbose bool) *model {
 	ball.channel = make(chan int)
 	ball.markTime = time.Now()
 	ball.internalId = 0
-	ball.state = rUNNER_STATE_ACTIVE //that is bypassing READY
+	ball.state = runnerStateActive //that is bypassing READY
 	ball.priority = 100
 	ball.setMarkTime(time.Now())
 	var runner RunnerInterface = ball
@@ -178,7 +179,7 @@ func (mdl *model) advance(interval float64) bool {
 
 	ch := mdl.activeRunner.getChannel()
 	mdl.activeRunner.setMovingTime(stime + interval)
-	mdl.activeRunner.setState(rUNNER_STATE_SCHEDULED)
+	mdl.activeRunner.setState(runnerStateScheduled)
 	mdl.removeFromMovingList(mdl.activeRunner)
 	mdl.addToSchedulledList(mdl.activeRunner)
 	//restart control channel and freez
@@ -214,7 +215,7 @@ func (mdl *model) add(runner RunnerInterface) bool {
 	runner.setChannel(make(chan int))
 	runner.setMovingTime(stime)
 	runner.setInternalId(mdl.currentId)
-	runner.setState(rUNNER_STATE_READY)
+	runner.setState(runnerStateReady)
 	mdl.addToMovingList(runner)
 
 	go func() {
@@ -225,7 +226,7 @@ func (mdl *model) add(runner RunnerInterface) bool {
 			panic("remove: activeRunner == nil")
 		}
 		mdl.removeFromMovingList(mdl.activeRunner)
-		mdl.activeRunner.setState(rUNNER_STATE_TERMINATED)
+		mdl.activeRunner.setState(runnerStateTerminated)
 		mdl.activeRunner = nil
 		mdl.controlChannel <- 100
 	}()
@@ -235,27 +236,26 @@ func (mdl *model) add(runner RunnerInterface) bool {
 
 func (mdl *model) interrupt(runner RunnerInterface) {
 
-	if runner.getState() != rUNNER_STATE_SCHEDULED {
-		panic("It is not  rUNNER_STATE_SCHEDULED")
+	if runner.getState() != runnerStateScheduled {
+		panic("It is not  runnerStateScheduled")
 	}
 	mdl.removeFromSchedulledList(runner)
-	runner.setState(rUNNER_STATE_INTERRUPTED)
+	runner.setState(runnerStateInterrupted)
 	mdl.addToInterruptedMap(runner)
 
 }
 
 func (mdl *model) resume(runner RunnerInterface, timeChange float64) {
-	if runner.getState() != rUNNER_STATE_INTERRUPTED {
-		panic("It is not  rUNNER_STATE_INTERRUPTED")
+	if runner.getState() != runnerStateInterrupted {
+		panic("It is not  runnerStateInterrupted")
 	}
 	mdl.removeFromInterruptedMap(runner)
-	runner.setState(rUNNER_STATE_SCHEDULED)
+	runner.setState(runnerStateScheduled)
 	runner.setMovingTime(runner.getMovingTime() + timeChange)
 	//mdl.addToMovingList(runner)
 	mdl.addToSchedulledList(runner)
 
 }
-
 
 func (mdl *model) booleanControlWait(b *BooleanControl, val bool) {
 
@@ -266,7 +266,7 @@ func (mdl *model) booleanControlWait(b *BooleanControl, val bool) {
 
 	mdl.removeFromMovingList(mdl.activeRunner)
 
-	mdl.activeRunner.setState(rUNNER_STATE_WAITING_COND)
+	mdl.activeRunner.setState(runnerStateWaitingCond)
 	mdl.activeRunner.setWaitingForBool(val)
 	mdl.activeRunner.setWaitingForBoolControl(b)
 
@@ -282,16 +282,6 @@ func (mdl *model) booleanControlWaitAndTimeout(b *BooleanControl, val bool, time
 	AddRunner(ri)
 	mdl.activeRunner.setWaitingForBoolControlTimeoutId(ri.getInternalId())
 	mdl.booleanControlWait(b, val)
-
-}
-
-func (mdl *model) booleanControlSet(b *BooleanControl) {
-	ch := mdl.activeRunner.getChannel()
-	if mdl.activeRunner == nil {
-		panic("booleanControlSet - no runner")
-	}
-	mdl.controlChannel <- 100
-	<-ch
 
 }
 
@@ -311,7 +301,7 @@ func (mdl *model) control() bool {
 						panic("  no BoolControl")
 					}
 					if temp.getWaitingForBool() == temp.getWaitingForBoolControl().GetState() {
-						temp.setState(rUNNER_STATE_READY)
+						temp.setState(runnerStateReady)
 						temp.setWaitingForBoolControl(nil)
 						temp.setWaitingForBoolControlTimeoutId(-1)
 						mdl.addToMovingList(temp)
@@ -340,7 +330,7 @@ func (mdl *model) control() bool {
 			}
 			//restarting
 			mdl.activeRunner = runner
-			mdl.activeRunner.setState(rUNNER_STATE_ACTIVE)
+			mdl.activeRunner.setState(runnerStateActive)
 			runner.setWaitingForBoolControl(nil)
 			mdl.activeRunner.getChannel() <- -1
 
@@ -426,7 +416,7 @@ func (mdl *model) removeFromMovingList(runner RunnerInterface) {
 	}
 
 	if !found {
-		//panic("not found in MovingList")
+		// panic("not found in MovingList")
 	}
 }
 
@@ -503,7 +493,6 @@ func (mdl *model) removeFromSchedulledList(runner RunnerInterface) {
 	if !found {
 		panic("not found in scheduledList")
 	}
-	return
 }
 
 func (mdl *model) addToWaitingConditionMap(runner RunnerInterface) bool {

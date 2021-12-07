@@ -62,7 +62,6 @@ func Example5() {
 		godes.AddRunner(&Customer{&godes.Runner{}, i})
 		godes.Advance(arrivalGen.Get(1 / INTERVAL_CUSTOMERS))
 	}
-
 	godes.WaitUntilDone()
 
 	// Output:

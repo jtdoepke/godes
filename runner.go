@@ -19,8 +19,8 @@ import (
 
 type RunnerInterface interface {
 	Run()
-	setState(i int)
-	getState() int
+	setState(s runnerState)
+	getState() runnerState
 	setChannel(c chan int)
 	getChannel() chan int
 	setInternalId(id int)
@@ -40,7 +40,7 @@ type RunnerInterface interface {
 }
 
 type Runner struct {
-	state                          int
+	state                          runnerState
 	channel                        chan int
 	internalId                     int
 	movingTime                     float64
@@ -49,7 +49,6 @@ type Runner struct {
 	waitingForBool                 bool
 	waitingForBoolControl          *BooleanControl
 	waitingForBoolControlTimeoutId int
-	//schedulledTime					 float64
 }
 
 type TimeoutRunner struct {
@@ -61,7 +60,7 @@ type TimeoutRunner struct {
 func (timeOut *TimeoutRunner) Run() {
 	Advance(timeOut.timeoutPeriod)
 	if timeOut.original.getWaitingForBoolControl() != nil && timeOut.original.getWaitingForBoolControlTimeoutId() == timeOut.internalId {
-		timeOut.original.setState(rUNNER_STATE_READY)
+		timeOut.original.setState(runnerStateReady)
 		timeOut.original.setWaitingForBoolControl(nil)
 		modl.addToMovingList(timeOut.original)
 		delete(modl.waitingConditionMap, timeOut.original.getInternalId())
@@ -77,11 +76,11 @@ func (b *Runner) Run() {
 	fmt.Println("Run Run Run Run")
 }
 
-func (b *Runner) setState(i int) {
-	b.state = i
+func (b *Runner) setState(s runnerState) {
+	b.state = s
 }
 
-func (b *Runner) getState() int {
+func (b *Runner) getState() runnerState {
 	return b.state
 }
 
@@ -153,14 +152,11 @@ func (b *Runner) getWaitingForBoolControlTimeoutId() int {
 }
 
 func (b *Runner) IsShedulled() bool {
-	if b.state == rUNNER_STATE_SCHEDULED {
-		return true
-	}
-	return false
+	return b.state == runnerStateScheduled
 }
 
 func (b *Runner) GetMovingTime() float64 {
-	if b.state == rUNNER_STATE_SCHEDULED {
+	if b.state == runnerStateScheduled {
 		return b.movingTime
 	} else {
 		panic("Runner is Not Shedulled ")
@@ -172,17 +168,17 @@ func (b *Runner) String() string {
 	var st = ""
 
 	switch b.state {
-	case rUNNER_STATE_READY:
+	case runnerStateReady:
 		st = "READY"
-	case rUNNER_STATE_ACTIVE:
+	case runnerStateActive:
 		st = "ACTIVE"
-	case rUNNER_STATE_WAITING_COND:
+	case runnerStateWaitingCond:
 		st = "WAITING_COND"
-	case rUNNER_STATE_SCHEDULED:
+	case runnerStateScheduled:
 		st = "SCHEDULED"
-	case rUNNER_STATE_INTERRUPTED:
+	case runnerStateInterrupted:
 		st = "INTERRUPTED"
-	case rUNNER_STATE_TERMINATED:
+	case runnerStateTerminated:
 		st = "TERMINATED"
 
 	default:

@@ -19,7 +19,6 @@ package godes
 import (
 	"math"
 	"math/rand"
-	//"fmt"
 )
 
 var seedCount int64 = 100000
@@ -28,20 +27,19 @@ type distribution struct {
 	generator *rand.Rand
 }
 
-
-//UniformDistr represents the generator for the uniform distribution
+// UniformDistr represents the generator for the uniform distribution
 type UniformDistr struct {
 	distribution
 }
 
-//NewUniformDistr initiats the generator for the uniform distribution
+// NewUniformDistr initiats the generator for the uniform distribution
 func NewUniformDistr(repetion bool) *UniformDistr {
 	if repetion {
 		seedCount++
 		return &UniformDistr{distribution{rand.New(rand.NewSource(seedCount))}}
 	} else {
 		return &UniformDistr{distribution{rand.New(rand.NewSource(GetCurComputerTime()))}}
-	}	
+	}
 }
 
 // Get returns new radom value from the uniform distribution generator
@@ -69,12 +67,12 @@ func (b *NormalDistr) Get(mean float64, sigma float64) float64 {
 	return b.generator.NormFloat64()*sigma + mean
 }
 
-//ExpDistr represents the generator for the exponential distribution
+// ExpDistr represents the generator for the exponential distribution
 type ExpDistr struct {
 	distribution
 }
 
-//NewExpDistr initiats the generator for the exponential distribution
+// NewExpDistr initiats the generator for the exponential distribution
 // If repetition flag is true, the generator will generate the same sequences for every execution
 func NewExpDistr(repetion bool) *ExpDistr {
 
@@ -92,12 +90,12 @@ func (b *ExpDistr) Get(lambda float64) float64 {
 	return b.generator.ExpFloat64() / lambda
 }
 
-//TriangularDistr represents the generator for the triangular distribution
+// TriangularDistr represents the generator for the triangular distribution
 type TriangularDistr struct {
 	distribution
 }
 
-//NewTriangularDistr initiats the generator for the triangular distribution
+// NewTriangularDistr initiats the generator for the triangular distribution
 // If repetition flag is true, the generator will generate the same sequences for every execution
 func NewTriangularDistr(repetion bool) *TriangularDistr {
 	if repetion {

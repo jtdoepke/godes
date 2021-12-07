@@ -28,18 +28,17 @@
 //See examples for usage.
 package godes
 
-
 // BooleanControl is a boolean control variable
 type BooleanControl struct {
 	state bool
 }
 
-// NewBooleanControl constructs a BooleanControl
+// NewBooleanControl constructs a BooleanControl.
 func NewBooleanControl() *BooleanControl {
 	return &BooleanControl{state: false}
 }
 
-//Wait stops the runner  untill the BooleanControll bc is set to true
+// Wait stops the runner until the BooleanControl bc is set to true.
 func (bc *BooleanControl) Wait(b bool) {
 	if bc.state == b {
 		//do nothing
@@ -48,7 +47,7 @@ func (bc *BooleanControl) Wait(b bool) {
 	}
 }
 
-//Wait stops the runner  untill the BooleanControll bc is set to true or timeout
+// WaitAndTimeout stops the runner until the BooleanControl bc is set to true or timeout.
 func (bc *BooleanControl) WaitAndTimeout(b bool, timeOut float64) {
 	if bc.state == b {
 		//do nothing
@@ -57,7 +56,7 @@ func (bc *BooleanControl) WaitAndTimeout(b bool, timeOut float64) {
 	}
 }
 
-// Set changes the value of bc
+// Set changes the value of bc.
 func (bc *BooleanControl) Set(b bool) {
 
 	if bc.state == b {
@@ -67,12 +66,12 @@ func (bc *BooleanControl) Set(b bool) {
 	}
 }
 
-// getState returns value of bc
+// GetState returns value of bc.
 func (bc *BooleanControl) GetState() bool {
 	return bc.state
 }
 
-// Clear sets the bc value to default false
+// Clear sets the bc value to default false.
 func (bc *BooleanControl) Clear() {
 	bc.state = false
 }

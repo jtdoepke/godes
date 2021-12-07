@@ -16,8 +16,11 @@ import (
 	"text/tabwriter"
 	"time"
 )
-const mAX_NUMBER_OF_SAMPLES = 100
-const mAX_NUMBER_OF_PARAMETERS = 6
+
+const (
+	maxNumSamples = 100
+	maxNumParams  = 6
+)
 
 var curTime int64
 
@@ -35,7 +38,7 @@ func GetCurComputerTime() int64 {
 	}
 }
 
-//NewStatCollector creates a wrapper for samples data
+// NewStatCollector creates a wrapper for samples data
 func NewStatCollector(measures []string, samples [][]float64) *StatCollector {
 
 	if measures == nil {
@@ -52,17 +55,18 @@ func NewStatCollector(measures []string, samples [][]float64) *StatCollector {
 
 	return &StatCollector{measures, samples}
 }
-//StatCollector is a wrapper which contains set of samples for statistical analyses
+
+// StatCollector is a wrapper which contains set of samples for statistical analyses
 type StatCollector struct {
 	measures []string
 	samples  [][]float64
 }
 
-//Print calculates statistical parameters and output them to *bufio.Writer
+// Print calculates statistical parameters and output them to *bufio.Writer
 // parameters flags are allowed
 func (collector *StatCollector) Print(statWriter *bufio.Writer, measuresSwt bool, avgSwt bool, stdDevSwt bool, lBooundSwt bool, uBoundSwt bool, minSwt bool, maxSwt bool) (err error) {
 
-	var results [mAX_NUMBER_OF_PARAMETERS][mAX_NUMBER_OF_SAMPLES]float64
+	var results [maxNumParams][maxNumSamples]float64
 	if statWriter == nil {
 		panic("startWrite equal nil")
 	}
@@ -146,10 +150,9 @@ func (collector *StatCollector) PrintStat() {
 		fmt.Fprintf(w, "%s\t%d\t%6.3f\t%6.3f\t%6.3f\t%6.3f\t%6.3f\t%6.3f\n", collector.measures[i], obs, avg, std, lb, ub, min, max)
 	}
 	w.Flush()
-	return
 }
 
-//GetStat returns size of the sample, average, standard deviation, low bound and uppe bounds of confidence inteval,  minimum and  maximum values
+// GetStat returns size of the sample, average, standard deviation, low bound and uppe bounds of confidence inteval,  minimum and  maximum values
 func (collector *StatCollector) GetStat(measureInd int) (int64, float64, float64, float64, float64, float64, float64) {
 	if measureInd < 0 || measureInd > len(collector.measures)-1 {
 		panic("invalid index")
@@ -171,7 +174,7 @@ func (collector *StatCollector) GetStat(measureInd int) (int64, float64, float64
 
 }
 
-//GetSize returns size of a sample
+// GetSize returns size of a sample
 func (collector *StatCollector) GetSize(measureInd int) int {
 	if measureInd < 0 || measureInd > len(collector.measures)-1 {
 		panic("invalid index")
@@ -180,7 +183,7 @@ func (collector *StatCollector) GetSize(measureInd int) int {
 	return size
 }
 
-//GetAverage returns average of a sample
+// GetAverage returns average of a sample
 func (collector *StatCollector) GetAverage(measureInd int) float64 {
 
 	if measureInd < 0 || measureInd > len(collector.measures)-1 {
@@ -196,7 +199,7 @@ func (collector *StatCollector) GetAverage(measureInd int) float64 {
 	return avg
 }
 
-//GetStandardDeviation returns standard deviation of a sample
+// GetStandardDeviation returns standard deviation of a sample
 func (collector *StatCollector) GetStandardDeviation(measureInd int) float64 {
 
 	if measureInd < 0 || measureInd > len(collector.measures)-1 {
@@ -212,7 +215,7 @@ func (collector *StatCollector) GetStandardDeviation(measureInd int) float64 {
 	return std
 }
 
-//GetLowBoundCI returns low bound of confidence interval for sample
+// GetLowBoundCI returns low bound of confidence interval for sample
 func (collector *StatCollector) GetLowBoundCI(measureInd int) float64 {
 
 	if measureInd < 0 || measureInd > len(collector.measures)-1 {
@@ -228,7 +231,7 @@ func (collector *StatCollector) GetLowBoundCI(measureInd int) float64 {
 	return lb
 }
 
-//GetUpperBoundCI returns upper bound of confidence interval for sample
+// GetUpperBoundCI returns upper bound of confidence interval for sample
 func (collector *StatCollector) GetUpperBoundCI(measureInd int) float64 {
 
 	if measureInd < 0 || measureInd > len(collector.measures)-1 {
@@ -244,7 +247,7 @@ func (collector *StatCollector) GetUpperBoundCI(measureInd int) float64 {
 	return ub
 }
 
-//GetMinimum returns minimum value for a sample
+// GetMinimum returns minimum value for a sample
 func (collector *StatCollector) GetMinimum(measureInd int) float64 {
 
 	if measureInd < 0 || measureInd > len(collector.measures)-1 {
@@ -260,7 +263,7 @@ func (collector *StatCollector) GetMinimum(measureInd int) float64 {
 	return min
 }
 
-//GetMaximum returns maximum value for a sample
+// GetMaximum returns maximum value for a sample
 func (collector *StatCollector) GetMaximum(measureInd int) float64 {
 
 	if measureInd < 0 || measureInd > len(collector.measures)-1 {
