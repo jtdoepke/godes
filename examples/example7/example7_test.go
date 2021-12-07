@@ -1,7 +1,7 @@
 // Copyright 2015 Alex Goussiatiner. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
-package main
+package main_test
 
 /*
 Procces Description:
@@ -52,31 +52,33 @@ import (
 const (
 	ARRIVAL_INTERVAL = 0.5
 	SERVICE_TIME     = 1.3
-	SHUTDOWN_TIME    = 8 * 60.
+	SHUTDOWN_TIME    = 8 * 60
 	INDEPENDENT_RUNS = 100
 )
 
-// the arrival and service are two random number generators for the exponential  distribution
-var arrival *godes.ExpDistr = godes.NewExpDistr(true)
-var service *godes.ExpDistr = godes.NewExpDistr(true)
+var (
+	// the arrival and service are two random number generators for the exponential  distribution
+	arrival *godes.ExpDistr = godes.NewExpDistr(true)
+	service *godes.ExpDistr = godes.NewExpDistr(true)
 
-// true when any counter is available
-var counterSwt *godes.BooleanControl = godes.NewBooleanControl()
+	// true when any counter is available
+	counterSwt *godes.BooleanControl = godes.NewBooleanControl()
 
-// FIFO Queue for the arrived customers
-var customerArrivalQueue *godes.FIFOQueue = godes.NewFIFOQueue("0")
+	// FIFO Queue for the arrived customers
+	customerArrivalQueue *godes.FIFOQueue = godes.NewFIFOQueue("0")
 
-var tellers *Tellers
-var statistics [][]float64
-var replicationStats [][]float64
-var titles = []string{
-	"Elapsed Time",
-	"Queue Length",
-	"Queueing Time",
-	"Service Time",
-}
+	tellers          *Tellers
+	statistics       [][]float64
+	replicationStats [][]float64
+	titles           = []string{
+		"Elapsed Time",
+		"Queue Length",
+		"Queueing Time",
+		"Service Time",
+	}
 
-var availableTellers int = 0
+	availableTellers int = 0
+)
 
 // the Tellers is a Passive Object represebting resource
 type Tellers struct {
@@ -126,7 +128,7 @@ func (customer *Customer) GetId() int {
 	return customer.id
 }
 
-func main() {
+func Example7() {
 	statistics = [][]float64{}
 
 	tellers = &Tellers{3}
@@ -162,13 +164,6 @@ func main() {
 	collector := godes.NewStatCollector(titles, statistics)
 	collector.PrintStat()
 	fmt.Printf("Finished \n")
-}
 
-/* OUTPUT
-Variable		#	Average	Std Dev	L-Bound	U-Bound	Minimum	Maximum
-Elapsed Time	100	 3.672	 1.217	 3.433	 3.910	 1.980	 8.722
-Queue Length	100	 4.684	 2.484	 4.197	 5.171	 1.539	14.615
-Queueing Time	100	 2.368	 1.194	 2.134	 2.602	 0.810	 7.350
-Service Time	100	 1.304	 0.044	 1.295	 1.312	 1.170	 1.432
-Finished
-*/
+	// XXX: The output of this example is random.
+}

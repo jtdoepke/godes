@@ -1,7 +1,7 @@
 // Copyright 2015 Alex Goussiatiner. All rights reserved.
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
-package main
+package main_test
 
 /*
 Procces Description:
@@ -24,15 +24,17 @@ const (
 	SHUTDOWN_TIME    = 8 * 60.
 )
 
-// the arrival and service are two random number generators for the exponential  distribution
-var arrival *godes.ExpDistr = godes.NewExpDistr(true)
-var service *godes.ExpDistr = godes.NewExpDistr(true)
+var (
+	// the arrival and service are two random number generators for the exponential  distribution
+	arrival *godes.ExpDistr = godes.NewExpDistr(true)
+	service *godes.ExpDistr = godes.NewExpDistr(true)
 
-// true when any counter is available
-var counterSwt *godes.BooleanControl = godes.NewBooleanControl()
+	// true when any counter is available
+	counterSwt *godes.BooleanControl = godes.NewBooleanControl()
 
-// FIFO Queue for the arrived customers
-var customerArrivalQueue *godes.FIFOQueue = godes.NewFIFOQueue("0")
+	// FIFO Queue for the arrived customers
+	customerArrivalQueue *godes.FIFOQueue = godes.NewFIFOQueue("0")
+)
 
 var tellers *Tellers
 var measures [][]float64
@@ -88,7 +90,8 @@ func (customer *Customer) Run() {
 	collectionArray := []float64{a2 - a0, qlength, a1 - a0, a2 - a1}
 	measures = append(measures, collectionArray)
 }
-func main() {
+
+func Example6() {
 	measures = [][]float64{}
 	tellers = &Tellers{3}
 	godes.Run()
@@ -108,12 +111,12 @@ func main() {
 	collector := godes.NewStatCollector(titles, measures)
 	collector.PrintStat()
 	fmt.Printf("Finished \n")
-}
 
-/* OUTPUT
-Variable		#	Average	Std Dev	L-Bound	U-Bound	Minimum	Maximum
-Elapsed Time	944	 2.591	 1.959	 2.466	 2.716	 0.005	11.189
-Queue Length	944	 2.411	 3.069	 2.215	 2.607	 0.000	13.000
-Queueing Time	944	 1.293	 1.533	 1.195	 1.391	 0.000	 6.994
-Service Time	944	 1.298	 1.247	 1.219	 1.378	 0.003	 7.824
-*/
+	// Output:
+	// Variable		#	Average	Std Dev	L-Bound	U-Bound	Minimum	Maximum
+	// Elapsed Time	944	 2.592	 1.960	 2.467	 2.717	 0.005	11.189
+	// Queue Length	944	 2.412	 3.069	 2.216	 2.608	 0.000	13.000
+	// Queueing Time	944	 1.293	 1.533	 1.196	 1.391	 0.000	 6.994
+	// Service Time	944	 1.298	 1.247	 1.219	 1.378	 0.003	 7.824
+	// Finished
+}
